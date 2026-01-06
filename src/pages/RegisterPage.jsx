@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Toast from '../components/Toast';
+import judixLogo from '../assets/judix-logo.jpg';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -48,21 +49,32 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-mesh relative overflow-hidden flex items-center justify-center p-4">
+            {/* Animated background orbs */}
+            <div className="orb orb-cyan w-96 h-96 -top-48 -right-48 animate-float" />
+            <div className="orb orb-purple w-80 h-80 top-1/3 -left-40 animate-float-delayed" />
+            <div className="orb orb-pink w-64 h-64 -bottom-32 right-1/4 animate-float" />
+
             {error && <Toast message={error} type="error" onClose={() => setError('')} />}
 
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md relative z-10 animate-fade-in">
+                {/* Logo and branding */}
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-indigo-400 mb-2">Judix</h1>
-                    <p className="text-gray-400">Task Management System</p>
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg shadow-purple-500/30">
+                        <img src={judixLogo} alt="Judix Logo" className="w-full h-full object-cover" />
+                    </div>
+                    <h1 className="text-4xl font-bold text-gradient mb-2">Judix</h1>
+                    <p className="text-slate-400">Smart Task Management</p>
                 </div>
 
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 shadow-xl">
-                    <h2 className="text-2xl font-semibold text-white mb-6">Create an account</h2>
+                {/* Register card */}
+                <div className="glass-card rounded-2xl p-8 animate-scale-in">
+                    <h2 className="text-2xl font-semibold text-white mb-2">Create your account</h2>
+                    <p className="text-slate-400 mb-6">Start managing your tasks efficiently</p>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="form-label">
                                 Full Name
                             </label>
                             <input
@@ -71,14 +83,14 @@ const RegisterPage = () => {
                                 value={formData.name}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                                placeholder="Enter your name"
+                                className="form-input"
+                                placeholder="John Doe"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Email
+                            <label className="form-label">
+                                Email Address
                             </label>
                             <input
                                 type="email"
@@ -86,13 +98,13 @@ const RegisterPage = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                                placeholder="Enter your email"
+                                className="form-input"
+                                placeholder="you@example.com"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="form-label">
                                 Password
                             </label>
                             <input
@@ -101,13 +113,14 @@ const RegisterPage = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                                placeholder="Create a password"
+                                className="form-input"
+                                placeholder="••••••••"
                             />
+                            <p className="text-slate-500 text-xs mt-1">Minimum 6 characters</p>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="form-label">
                                 Confirm Password
                             </label>
                             <input
@@ -116,27 +129,58 @@ const RegisterPage = () => {
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                                placeholder="Confirm your password"
+                                className="form-input"
+                                placeholder="••••••••"
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mt-6"
                         >
-                            {loading ? 'Creating account...' : 'Create Account'}
+                            <span className="flex items-center justify-center gap-2">
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Creating account...
+                                    </>
+                                ) : (
+                                    <>
+                                        Create Account
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </>
+                                )}
+                            </span>
                         </button>
                     </form>
 
-                    <p className="text-center text-gray-400 mt-6">
-                        Already have an account?{' '}
-                        <Link to="/login" className="text-indigo-400 hover:text-indigo-300 transition-colors">
-                            Sign in
-                        </Link>
-                    </p>
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-slate-700"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-4 bg-[#1e1b4b]/60 text-slate-400">Already have an account?</span>
+                        </div>
+                    </div>
+
+                    <Link
+                        to="/login"
+                        className="block w-full text-center btn-secondary"
+                    >
+                        Sign in instead
+                    </Link>
                 </div>
+
+                {/* Footer */}
+                <p className="text-center text-slate-500 text-sm mt-8">
+                    © 2026 Judix. All rights reserved.
+                </p>
             </div>
         </div>
     );

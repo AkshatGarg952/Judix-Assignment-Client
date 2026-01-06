@@ -44,33 +44,42 @@ const ProfilePage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-gradient-mesh">
             <Navbar />
 
             {error && <Toast message={error} type="error" onClose={() => setError('')} />}
             {success && <Toast message={success} type="success" onClose={() => setSuccess('')} />}
 
             <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <h1 className="text-3xl font-bold text-white mb-8">Profile Settings</h1>
+                <h1 className="text-3xl font-bold text-white mb-8 animate-fade-in">Profile Settings</h1>
 
-                <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                    <div className="p-6 border-b border-gray-700">
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center">
-                                <span className="text-2xl font-bold text-white">
-                                    {user?.name?.charAt(0).toUpperCase()}
-                                </span>
+                <div className="glass-card rounded-2xl overflow-hidden animate-fade-in">
+                    {/* Profile Header */}
+                    <div className="p-8 border-b border-purple-500/10 bg-gradient-to-r from-purple-500/5 to-cyan-500/5">
+                        <div className="flex flex-col sm:flex-row items-center gap-6">
+                            {/* Avatar with gradient ring */}
+                            <div className="avatar-ring">
+                                <div className="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center shadow-lg shadow-purple-500/30">
+                                    <span className="text-3xl font-bold text-white">
+                                        {user?.name?.charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className="text-xl font-semibold text-white">{user?.name}</h2>
-                                <p className="text-gray-400">{user?.email}</p>
+                            <div className="text-center sm:text-left">
+                                <h2 className="text-2xl font-semibold text-white">{user?.name}</h2>
+                                <p className="text-slate-400 mt-1">{user?.email}</p>
+                                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20">
+                                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                    <span className="text-sm text-purple-300">Active Member</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    {/* Profile Form */}
+                    <form onSubmit={handleSubmit} className="p-8 space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="form-label">
                                 Full Name
                             </label>
                             <input
@@ -78,36 +87,66 @@ const ProfilePage = () => {
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="form-input"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Email
+                            <label className="form-label">
+                                Email Address
                             </label>
                             <input
                                 type="email"
                                 value={user?.email}
                                 disabled
-                                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+                                className="form-input opacity-60 cursor-not-allowed"
                             />
-                            <p className="text-gray-500 text-sm mt-1">Email cannot be changed</p>
+                            <p className="text-slate-500 text-sm mt-2 flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Email cannot be changed
+                            </p>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Member Since
+                        <div className="pt-4 border-t border-purple-500/10">
+                            <label className="form-label">
+                                Account Information
                             </label>
-                            <p className="text-gray-400">{user?.createdAt ? formatDate(user.createdAt) : 'N/A'}</p>
+                            <div className="mt-2">
+                                <div className="p-4 rounded-xl bg-slate-900/50 border border-purple-500/10">
+                                    <p className="text-slate-500 text-sm">Account Status</p>
+                                    <p className="text-green-400 font-medium mt-1 flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-green-400"></span>
+                                        Active
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Saving...' : 'Save Changes'}
+                            <span className="flex items-center justify-center gap-2">
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Saving...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Save Changes
+                                    </>
+                                )}
+                            </span>
                         </button>
                     </form>
                 </div>

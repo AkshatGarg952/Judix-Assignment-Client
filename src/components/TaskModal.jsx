@@ -48,17 +48,44 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-2xl w-full max-w-md border border-gray-700 shadow-xl">
-                <div className="p-6 border-b border-gray-700">
-                    <h2 className="text-xl font-semibold text-white">
-                        {task ? 'Edit Task' : 'Create New Task'}
-                    </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <div
+                className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm animate-fade-in"
+                onClick={onClose}
+            />
+
+            {/* Modal */}
+            <div className="relative w-full max-w-md glass-card rounded-2xl shadow-2xl shadow-purple-500/10 animate-scale-in">
+                {/* Header */}
+                <div className="p-6 border-b border-purple-500/10">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
+                            {task ? (
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            ) : (
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                            )}
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-semibold text-white">
+                                {task ? 'Edit Task' : 'Create New Task'}
+                            </h2>
+                            <p className="text-sm text-slate-400">
+                                {task ? 'Update your task details' : 'Add a new task to your list'}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="p-6 space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="form-label">
                             Title
                         </label>
                         <input
@@ -67,13 +94,13 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null }) => {
                             value={formData.title}
                             onChange={handleChange}
                             required
-                            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                            className="form-input"
                             placeholder="Enter task title"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                        <label className="form-label">
                             Description
                         </label>
                         <textarea
@@ -81,21 +108,21 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null }) => {
                             value={formData.description}
                             onChange={handleChange}
                             rows={3}
-                            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+                            className="form-input resize-none"
                             placeholder="Enter task description (optional)"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="form-label">
                                 Status
                             </label>
                             <select
                                 name="status"
                                 value={formData.status}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="form-select"
                             >
                                 <option value="pending">Pending</option>
                                 <option value="in-progress">In Progress</option>
@@ -104,14 +131,14 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="form-label">
                                 Priority
                             </label>
                             <select
                                 name="priority"
                                 value={formData.priority}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="form-select"
                             >
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
@@ -120,20 +147,33 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null }) => {
                         </div>
                     </div>
 
-                    <div className="flex gap-3 pt-4">
+                    {/* Actions */}
+                    <div className="flex gap-3 pt-4 border-t border-purple-500/10">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                            className="flex-1 btn-secondary"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Saving...' : (task ? 'Update' : 'Create')}
+                            <span className="flex items-center justify-center gap-2">
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        Saving...
+                                    </>
+                                ) : (
+                                    task ? 'Update Task' : 'Create Task'
+                                )}
+                            </span>
                         </button>
                     </div>
                 </form>

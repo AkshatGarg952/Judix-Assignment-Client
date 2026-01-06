@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../components/Navbar';
 import TaskCard from '../components/TaskCard';
 import TaskModal from '../components/TaskModal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import Toast from '../components/Toast';
 import { taskService } from '../api/services';
 
@@ -12,6 +13,7 @@ const DashboardPage = () => {
     const [success, setSuccess] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
+    const [deletingTask, setDeletingTask] = useState(null);
     const [filters, setFilters] = useState({
         status: '',
         priority: '',
@@ -52,6 +54,14 @@ const DashboardPage = () => {
         fetchTasks();
     }, [fetchTasks]);
 
+    // Calculate stats
+    const stats = {
+        total: tasks.length,
+        pending: tasks.filter(t => t.status === 'pending').length,
+        inProgress: tasks.filter(t => t.status === 'in-progress').length,
+        completed: tasks.filter(t => t.status === 'completed').length
+    };
+
     const handleCreateOrUpdate = async (data, taskId) => {
         try {
             if (taskId) {
@@ -73,16 +83,21 @@ const DashboardPage = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (taskId) => {
-        if (!window.confirm('Are you sure you want to delete this task?')) {
-            return;
-        }
+    const handleDelete = (task) => {
+        setDeletingTask(task);
+    };
+
+    const confirmDelete = async () => {
+        if (!deletingTask) return;
+
         try {
-            await taskService.deleteTask(taskId);
+            await taskService.deleteTask(deletingTask._id);
             setSuccess('Task deleted successfully');
             fetchTasks();
         } catch (err) {
             setError('Failed to delete task');
+        } finally {
+            setDeletingTask(null);
         }
     };
 
@@ -102,39 +117,88 @@ const DashboardPage = () => {
         setIsModalOpen(true);
     };
 
+    const StatCard = ({ icon, label, value, color }) => (
+        <div className="stat-card group">
+            <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color} transition-transform group-hover:scale-110`}>
+                    {icon}
+                </div>
+                <div>
+                    <p className="text-slate-400 text-sm">{label}</p>
+                    <p className="text-2xl font-bold text-white">{value}</p>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-gradient-mesh">
             <Navbar />
 
             {error && <Toast message={error} type="error" onClose={() => setError('')} />}
             {success && <Toast message={success} type="success" onClose={() => setSuccess('')} />}
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 animate-fade-in">
                     <div>
                         <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-                        <p className="text-gray-400 mt-1">Manage your tasks efficiently</p>
+                        <p className="text-slate-400 mt-1">Welcome back! Manage your tasks efficiently</p>
                     </div>
                     <button
                         onClick={openCreateModal}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                        className="btn-primary flex items-center gap-2 self-start sm:self-auto"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        New Task
+                        <span className="flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            New Task
+                        </span>
                     </button>
                 </div>
 
-                <div className="bg-gray-800 rounded-xl p-4 mb-6 border border-gray-700">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <StatCard
+                        icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
+                        label="Total Tasks"
+                        value={stats.total}
+                        color="bg-gradient-primary"
+                    />
+                    <StatCard
+                        icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                        label="Pending"
+                        value={stats.pending}
+                        color="bg-gradient-warning"
+                    />
+                    <StatCard
+                        icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
+                        label="In Progress"
+                        value={stats.inProgress}
+                        color="bg-gradient-to-r from-blue-500 to-cyan-500"
+                    />
+                    <StatCard
+                        icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                        label="Completed"
+                        value={stats.completed}
+                        color="bg-gradient-success"
+                    />
+                </div>
+
+                {/* Filters */}
+                <div className="glass-card rounded-xl p-4 mb-6">
                     <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1">
+                        <div className="flex-1 relative">
+                            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                             <input
                                 type="text"
                                 placeholder="Search tasks..."
                                 value={filters.search}
                                 onChange={handleSearch}
-                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="form-input pl-12"
                             />
                         </div>
                         <div className="flex gap-3">
@@ -142,7 +206,7 @@ const DashboardPage = () => {
                                 name="status"
                                 value={filters.status}
                                 onChange={handleFilterChange}
-                                className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="form-select min-w-[140px]"
                             >
                                 <option value="">All Status</option>
                                 <option value="pending">Pending</option>
@@ -153,7 +217,7 @@ const DashboardPage = () => {
                                 name="priority"
                                 value={filters.priority}
                                 onChange={handleFilterChange}
-                                className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="form-select min-w-[140px]"
                             >
                                 <option value="">All Priority</option>
                                 <option value="low">Low</option>
@@ -164,36 +228,53 @@ const DashboardPage = () => {
                     </div>
                 </div>
 
+                {/* Tasks Grid */}
                 {loading ? (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="glass-card rounded-xl p-5">
+                                <div className="skeleton h-6 w-3/4 mb-3"></div>
+                                <div className="skeleton h-4 w-full mb-2"></div>
+                                <div className="skeleton h-4 w-2/3 mb-4"></div>
+                                <div className="flex gap-2">
+                                    <div className="skeleton h-6 w-20 rounded-full"></div>
+                                    <div className="skeleton h-6 w-16"></div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : tasks.length === 0 ? (
-                    <div className="text-center py-12">
-                        <div className="text-gray-500 mb-4">
-                            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <div className="text-center py-16 animate-fade-in">
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-500/10 mb-6">
+                            <svg className="w-10 h-10 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                         </div>
-                        <h3 className="text-xl font-medium text-gray-300 mb-2">No tasks found</h3>
-                        <p className="text-gray-500 mb-4">Get started by creating your first task</p>
+                        <h3 className="text-xl font-semibold text-white mb-2">No tasks found</h3>
+                        <p className="text-slate-400 mb-6 max-w-sm mx-auto">Get started by creating your first task and boost your productivity</p>
                         <button
                             onClick={openCreateModal}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg transition-colors"
+                            className="btn-primary inline-flex items-center gap-2"
                         >
-                            Create Task
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Create Your First Task
+                            </span>
                         </button>
                     </div>
                 ) : (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {tasks.map(task => (
-                                <TaskCard
-                                    key={task._id}
-                                    task={task}
-                                    onEdit={handleEdit}
-                                    onDelete={handleDelete}
-                                />
+                            {tasks.map((task, index) => (
+                                <div key={task._id} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                                    <TaskCard
+                                        task={task}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                    />
+                                </div>
                             ))}
                         </div>
 
@@ -202,17 +283,28 @@ const DashboardPage = () => {
                                 <button
                                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                                     disabled={pagination.page === 1}
-                                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Previous
                                 </button>
-                                <span className="text-gray-400 px-4">
-                                    Page {pagination.page} of {pagination.pages}
-                                </span>
+                                <div className="flex items-center gap-1 px-4">
+                                    {[...Array(pagination.pages)].map((_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setPagination(prev => ({ ...prev, page: i + 1 }))}
+                                            className={`w-10 h-10 rounded-lg font-medium transition-all ${pagination.page === i + 1
+                                                ? 'bg-gradient-primary text-white'
+                                                : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                                                }`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
+                                </div>
                                 <button
                                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                                     disabled={pagination.page === pagination.pages}
-                                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Next
                                 </button>
@@ -230,6 +322,13 @@ const DashboardPage = () => {
                 }}
                 onSubmit={handleCreateOrUpdate}
                 task={editingTask}
+            />
+
+            <DeleteConfirmModal
+                isOpen={!!deletingTask}
+                onClose={() => setDeletingTask(null)}
+                onConfirm={confirmDelete}
+                taskTitle={deletingTask?.title}
             />
         </div>
     );
