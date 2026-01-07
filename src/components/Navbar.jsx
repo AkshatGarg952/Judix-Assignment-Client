@@ -22,7 +22,7 @@ const Navbar = () => {
                     <div className="flex items-center gap-8">
                         <Link to="/dashboard" className="flex items-center gap-3 group">
                             <div className="w-9 h-9 rounded-lg overflow-hidden shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-shadow">
-                                <img src={judixLogo} alt="Judix Logo" className="w-full h-full object-cover" />
+                                <img src={judixLogo} alt="Judix Logo" className="w-full h-full object-contain" />
                             </div>
                             <span className="text-xl font-bold text-gradient">Judix</span>
                         </Link>
