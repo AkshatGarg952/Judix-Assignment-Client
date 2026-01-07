@@ -20,7 +20,7 @@ const Navbar = () => {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <div className="flex items-center gap-8">
-                        <Link to="/dashboard" className="flex items-center gap-3 group">
+                        <Link to="/login" className="flex items-center gap-3 group">
                             <div className="w-9 h-9 rounded-lg overflow-hidden shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-shadow">
                                 <img src={judixLogo} alt="Judix Logo" className="w-full h-full object-contain" />
                             </div>
