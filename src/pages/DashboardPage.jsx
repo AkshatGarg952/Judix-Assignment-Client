@@ -198,7 +198,7 @@ const DashboardPage = () => {
                                 placeholder="Search tasks..."
                                 value={filters.search}
                                 onChange={handleSearch}
-                                className="form-input pl-12"
+                                className="form-input !pl-14"
                             />
                         </div>
                         <div className="flex gap-3">
